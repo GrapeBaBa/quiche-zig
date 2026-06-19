@@ -36,7 +36,21 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     translate.addIncludePath(quiche_dep.path("include"));
-    translate.addIncludePath(quiche_dep.path("deps/boringssl/src/include"));
+    // boringssl headers land in a hash-named OUT_DIR; stage them. See src/stage_boringssl.zig.
+    const stager = b.addExecutable(.{
+        .name = "stage-boringssl",
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/stage_boringssl.zig"),
+            .target = b.graph.host,
+        }),
+    });
+    const run_stager = b.addRunArtifact(stager);
+    // Stale boring-sys-<hash> dirs co-exist, so scope the search to <triple>/<profile>/build.
+    const bssl_search_root = cargo_target.path(b, b.fmt("{s}/{s}/build", .{ rust_triple, profile_dir }));
+    run_stager.addDirectoryArg(bssl_search_root);
+    // LazyPath wires the build-graph cache edge; keep it (don't flatten to a printed path).
+    const bssl_include = run_stager.addOutputDirectoryArg("include");
+    translate.addIncludePath(bssl_include);
     const quiche_mod = translate.addModule("quiche");
     // libquiche.a has no C++ stdlib usage, but Rust's std references the Itanium-ABI
     // unwinder (rust_eh_personality, _Unwind_*); link_libcpp pulls libunwind transitively.

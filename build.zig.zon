@@ -4,8 +4,8 @@
     .fingerprint = 0xdccda9f0a3c274ae,
     .dependencies = .{
         .quiche = .{
-            .url = "https://static.crates.io/crates/quiche/quiche-0.28.0.crate",
-            .hash = "N-V-__8AAJ1bNgFxv6LRy4xAO27QsTK-XNfqe0BMfRodoMrg",
+            .url = "https://static.crates.io/crates/quiche/quiche-0.29.2.crate",
+            .hash = "N-V-__8AAJMzKACDx9gSrzgUB3aIXkGPbYKa0_AgVwzJC9vl",
         },
     },
     .paths = .{
